@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Markeaze</name>
+    <version>2.1</version>
+    <author>Markeaze</author>
+    <code>markeaze</code>
+	<file path="catalog/controller/checkout/cart.php">
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/function(.*)[aA][dD]{2}(.*)\((.*)\)(.*)\{[\s\S]*?(if(.*)\((.*)\!\$json(.*)\)(.*)\{[\s\S]*?(?=\$json\['success'\]))/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey()) {
+					$this->model_extension_module_markeaze->updateCart();
+				}
+			]]></add>
+		</operation>
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/function(.*)remove(.*)[\s\S]*?\$this->response->setOutput[\s\S]*?[\n\r]/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey()) {
+					$this->model_extension_module_markeaze->updateCart();
+				}
+			]]></add>
+		</operation>
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/function(.*)edit(.*)[\s\S]*?reward[\s\S]*?[\n\r]/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey()) {
+					$this->model_extension_module_markeaze->updateCart();
+				}
+			]]></add>
+		</operation>
+	</file>
+  <file path="catalog/controller/checkout/success.php">
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/\$this->load->language[\s\S]*?[\n\r]/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey() and !empty($this->session->data['order_id'])) {
+					$this->model_extension_module_markeaze->orderAdd($this->session->data['order_id']);
+				}
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/product/product.php">
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/function(.*)index(.*)\((.*)\)(.*)\{/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey() and $this->request->get['product_id']) {
+					$this->model_extension_module_markeaze->productViewed($this->request->get['product_id']);
+				}
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/payment/payanyway.php">
+		<operation>
+			<search regex="true" limit="1"><![CDATA[/\$data[\'order_id\'] = \$order_id;[\s\S]*?[\n\r]/i]]></search>
+			<add><![CDATA[$0
+				$this->load->model('extension/module/markeaze');
+				if ($this->model_extension_module_markeaze->getAppKey()) {
+					$this->model_extension_module_markeaze->orderAdd($order_id);
+				}
+			]]></add>
+		</operation>
+	</file>
+</modification>

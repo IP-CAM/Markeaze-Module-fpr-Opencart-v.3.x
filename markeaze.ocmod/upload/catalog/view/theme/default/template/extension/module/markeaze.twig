@@ -1,0 +1,15 @@
+<script type="text/javascript">
+(function() {
+  if (window.mkz) return
+
+  (function(w,d,c){w[c]=w[c]||function(){(w[c].q=w[c].q||[]).push(arguments)};var t = document.cookie.match(new RegExp('(^| )mkz_version=([^;]+)'));var h = 'https://cdn.jsdelivr.net/gh/markeaze/markeaze-js-tracker@'+(t&&t[2]||'latest')+'/dist/mkz.js';var s = d.createElement('script');s.type = 'text/javascript';s.async = true;s.charset = 'utf-8';s.src = h;var x = d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s, x);})(window,document,'mkz');
+
+  window.mkz('watch', 'url.change', function() {
+    mkz('trackPageView');
+  });
+
+  window.mkz('appKey', '{{ app_key }}');
+  {% if visitor_info %}window.mkz('setVisitorInfo', {{ visitor_info|json_encode() }});{% endif %}
+  {% if view_product %}window.mkz('setOfferView', {{ view_product|json_encode() }});{% endif %}
+})();
+</script>
