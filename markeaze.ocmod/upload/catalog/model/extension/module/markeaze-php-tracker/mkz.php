@@ -13,7 +13,7 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 
 class Mkz {
   public $debug = false;
-  public $version = '1.0.0';
+  public $version = '1.0.1';
   public $post_data = null;
   private $tracker_name = 'markeaze-php';
   private $endpoint = null;
@@ -22,6 +22,7 @@ class Mkz {
   private $uid;
   private $visitor = array();
   private $cookie_name = '_mkz_dvc_uid';
+  private $use_cookie = true;
 
   public function __construct($app_key) {
     $this->set_app_key($app_key);
@@ -37,7 +38,12 @@ class Mkz {
   }
 
   public function set_device_uid($uid) {
-    $this->uid = (string) $uid;
+    if (!$uid) $this->uid = null;
+    else $this->uid = (string) stripslashes($uid);
+  }
+
+  public function use_cookie_uid($boolean = true) {
+    $this->use_cookie = (boolean) $boolean;
   }
 
   public function debug($value) {
@@ -60,7 +66,7 @@ class Mkz {
   }
 
   private function send($event_name, $properties = [], $visitor = []) {
-    $cookie_uid = !empty($_COOKIE[$this->cookie_name]) ? stripslashes($_COOKIE[$this->cookie_name]) : null;
+    $cookie_uid = $this->use_cookie && !empty($_COOKIE[$this->cookie_name]) ? stripslashes($_COOKIE[$this->cookie_name]) : null;
     $uid = $this->uid ? $this->uid : $cookie_uid;
     $merged_visitor = array_merge($this->visitor, $visitor);
 

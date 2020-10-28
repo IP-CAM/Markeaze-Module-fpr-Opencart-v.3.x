@@ -58,11 +58,20 @@ class ModelExtensionModuleMarkeaze extends Model {
 
     $order = $this->model_checkout_order->getOrder($order_id);
     $products = $this->model_account_order->getOrderProducts($order_id);
+    $data = $this->getOrderData($order, $products);
+    $visitor = $this->getCustomerInfo($order);
 
-    $mkz->set_visitor_info($this->getCustomerInfo($order));
-    $mkz->track('order_update', $this->getOrderData($order, $products));
+    // Fix multiple order updates
+    $payload = array($visitor, $data);
+    if (isset($this->session->data['cnv_last_order_update'])) {
+      if ($this->session->data['cnv_last_order_update'] === $payload) return;
+    }
+    $this->session->data['cnv_last_order_update'] = $payload;
+
+    $mkz->use_cookie_uid(false);
+    $mkz->set_visitor_info($visitor);
+    $mkz->track('order_update', $data);
   }
-
 
   public function orderAdd($order_id) {
     if (!($mkz = $this->getTracker())) return;
@@ -92,14 +101,21 @@ class ModelExtensionModuleMarkeaze extends Model {
       else $this->session->data['cnv_last_order_id'] = $order_id;
       $mkz->track('order_create', $this->getOrderData($order, $products));
     } else if ($order['order_status_id'] > 0) {
+      $mkz->use_cookie_uid(false);
       if ($order['order_status_id'] === 'cancelled') {
-        $mkz->track('order_cancel', array(
-          'order_uid' => $order_id
-        ));
+        $this->orderDelete($order_id);
       } else {
         $mkz->track('order_update', $this->getOrderData($order, $products));
       }
     }
+  }
+
+  public function orderDelete($order_id) {
+    if (!($mkz = $this->getTracker())) return;
+
+    $mkz->track('order_cancel', array(
+      'order_uid' => $order_id
+    ));
   }
 
   private function getCustomerInfo($order) {
@@ -140,24 +156,6 @@ class ModelExtensionModuleMarkeaze extends Model {
     );
   }
 
-  private function getOrderState($state) {
-    switch ($state) {
-      case 1:
-        return 'new';
-      /*case 3:
-        $state = 'shipped';
-        break;
-      case 0:
-        $state = 'cancelled';
-        break;
-      case 7:
-        $state = 'cancelled';
-        break;*/
-      default:
-        return $state;
-    }
-  }
-
   public function getAppKey() {
     $this->load->model('setting/setting');
     $app_key = $this->config->get('markeaze_app_key');
@@ -175,10 +173,11 @@ class ModelExtensionModuleMarkeaze extends Model {
   }
 
   protected function getImageUrl($path) {
+    $prefix = 'image/';
     if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
-      return $this->config->get('config_ssl') . 'image/' . $path;
+      return $this->config->get('config_ssl') . $prefix . $path;
     } else {
-      return $this->config->get('config_url') . 'image/' . $path;
+      return $this->config->get('config_url') . $prefix . $path;
     }
   }
 
