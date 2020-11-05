@@ -88,11 +88,12 @@ class Mkz {
 
     include_once('mkz_sender.php');
     $sender = new MkzSender("https://{$this->endpoint}/event");
-    $response = $sender->send(array('data' => json_encode($data)));
+    $headers = array('Content-Type: application/x-www-form-urlencoded; charset=utf-8');
+    $response = $sender->send(http_build_query(array('data' => json_encode($data))), 'POST', $headers);
 
     include_once('mkz_logger.php');
     $logger = new MkzLogger($this->debug);
-    $logger->put($data, $response);
+    $logger->put(array('headers' => $headers, 'body' => $data), $response);
 
     return $response;
   }

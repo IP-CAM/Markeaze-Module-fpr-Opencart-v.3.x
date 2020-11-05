@@ -31,21 +31,23 @@ class MkzWebhook {
     $data = array(
       'app_key' => (string) $this->app_key,
       'topic' => (string) $topic,
-      'payload' => json_encode($payload)
+      'payload' => $payload
     );
-    $signature = $this->get_webhook_signature($data);
+    $json = json_encode($data);
+    $signature = $this->get_webhook_signature($json);
     $headers = array(
-      "HTTP_X_MARKEAZE_WEBHOOK_SIGNATURE: {$signature}"
+      "HTTP_X_MARKEAZE_WEBHOOK_SIGNATURE: {$signature}",
+      'Content-Type: application/json'
     );
-    $response = $sender->send($data, 'POST', $headers);
+    $response = $sender->send($json, 'POST', $headers);
 
     include_once('mkz_logger.php');
     $logger = new MkzLogger($this->debug);
-    $logger->put($data, $response);
+    $logger->put(array('headers' => $headers, 'body' => $data), $response);
   }
 
   private function get_webhook_signature($data) {
-    return base64_encode(hash_hmac('sha256', json_encode($data), $this->app_secret, true));
+    return base64_encode(hash_hmac('sha256', $data, $this->app_secret, true));
   }
 
 }

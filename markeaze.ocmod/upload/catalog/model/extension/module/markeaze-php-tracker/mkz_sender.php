@@ -18,7 +18,6 @@ class MkzSender {
 
   public function send($data, $method = 'POST', $headers = []) {
     $class_name = function_exists('curl_version') ? 'MkzCurlSender' : 'MkzNativeSender';
-    array_push($headers, 'Content-Type: application/x-www-form-urlencoded; charset=utf-8');
     array_push($headers, 'Accept: application/json, text/javascript, */*; q=0.01');
     $sender = new $class_name($this->url);
     return $sender->send($data, strtoupper($method), $headers);
@@ -33,12 +32,11 @@ class MkzNativeSender {
   }
 
   public function send($data, $method = 'POST', $headers = []) {
-    $post = http_build_query($data);
     $opts = stream_context_create(array(
       'http' => array(
         'method' => $method,
         'header' => implode("\r\n", $headers),
-        'content' => $post
+        'content' => $data
       )
     ));
     return @file_get_contents($this->url, false, $opts);
@@ -65,7 +63,7 @@ class MkzCurlSender {
 
     if ($data) {
       if ($method == 'POST') curl_setopt($curl, CURLOPT_POST, 1);
-      curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     } else {
