@@ -11,8 +11,9 @@
 3. Press the 'Upload' button and select the 'markeaze.ocmod.zip' file, then press 'Continue'
 4. Go to 'Extensions' → 'Extensions' → 'Modules' → 'Markeaze' and click the 'Install' button
 5. Click 'Edit'
-6. Input App key from your Markeaze account
-7. Save changes
+6. Fill in the 'App key' field with your App Key
+7. Fill in the 'Secret Key' field with your Secret Key
+8. Press the 'Save' button
 
 ----------------------
 
@@ -27,5 +28,6 @@
 3. Нажать "Загрузить" и выбрать файл "markeaze.ocmod.zip", нажать "Далее"
 4. Зайдите в панель управления сайтом в раздел "Модули" → "Модули" → "Модули" → "Markeaze" найдите Markeaze и нажмите "Активировать"
 5. Нажмите  "Редактировать"
-6. Введите app_key из своего аккаунта markeaze
-7. Сохраните
+6. Введите "App-ключ" из своего аккаунта markeaze
+7. Введите "Secret-ключ" из своего аккаунта markeaze
+8. Сохраните

@@ -12,8 +12,8 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 */
 
 class Mkz {
-  public $debug = false;
-  public $version = '1.0.1';
+  public $version = '1.1.0';
+  public $debug = true;
   public $post_data = null;
   private $tracker_name = 'markeaze-php';
   private $endpoint = null;
@@ -90,21 +90,10 @@ class Mkz {
     $sender = new MkzSender("https://{$this->endpoint}/event");
     $response = $sender->send(array('data' => json_encode($data)));
 
-    $this->putLog($data, $response);
-    return $response;
-  }
+    include_once('mkz_logger.php');
+    $logger = new MkzLogger($this->debug);
+    $logger->put($data, $response);
 
-  private function putLog($request, $response) {
-    if (!$this->debug) return true;
-    ob_start();
-    echo 'REQUEST: ';
-    print_r($request);
-    echo 'RESPONSE: ';
-    print_r($response);
-    $str_post = ob_get_clean();
-    $date = date('Y.m.d H:i:s');
-    $row = "{$date}\n{$str_post}\n";
-    $filename = dirname(__FILE__) . '/debug.log';
-    return file_put_contents($filename, $row, FILE_APPEND);
+    return $response;
   }
 }

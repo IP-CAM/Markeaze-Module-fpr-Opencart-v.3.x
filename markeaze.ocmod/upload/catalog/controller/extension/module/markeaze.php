@@ -25,8 +25,8 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 		$args['analytics'][] = $this->index();
 	}
 
-	public function order_add($route, $data, (integer) $order_id) {
-		if ($order_id > 0) {
+	public function order_add($route, $data, $order_id) {
+		if ((integer) $order_id > 0) {
 			$this->load->model('extension/module/markeaze');
 			$this->model_extension_module_markeaze->orderAdd($order_id);
 		}
@@ -40,15 +40,15 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 		}
 	}
 
-	public function order_history_add((integer) $order_id) {
-		if ($order_id > 0) {
+	public function order_history_add($order_id) {
+		if ((integer) $order_id > 0) {
 			$this->load->model('extension/module/markeaze');
 			$this->model_extension_module_markeaze->orderAdd($order_id);
 		}
 	}
 
-	public function order_delete((integer) $order_id) {
-		if ($order_id > 0) {
+	public function order_delete($order_id) {
+		if ((integer) $order_id > 0) {
 			$this->load->model('extension/module/markeaze');
 			$this->model_extension_module_markeaze->orderDelete($order_id);
 		}

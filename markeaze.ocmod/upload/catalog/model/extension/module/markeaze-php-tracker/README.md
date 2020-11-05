@@ -2,11 +2,13 @@
 
 With this tracker you can collect user event data from the client-side tier of your websites and web apps.
 
-## Example html code for the site
+## Event api
+
+### Example code for the site
 
 ```php
 include_once('mkz.php');
-$app_key = 'xxxxxxxxxxxxxxxxxxxx';
+$app_key = 'xxxxxxxxxxxxxxxxxxxx@us-1';
 $uid = '1';
 $mkz = new Mkz($app_key);
 $mkz->set_visitor_info(array(
@@ -24,7 +26,7 @@ $mkz->track('cart_update', array(
 
 ```
 
-## Initializarion
+### Initializarion
 
 ```php
 include_once('mkz.php');
@@ -33,33 +35,33 @@ $mkz = new Mkz($app_key);
 
 ```
 
-## Options
+### Options
 
-### Set tracker url
+#### Set tracker url
 
 ```php
 $mkz->endpoint('tracker-stage2.markeaze.com');
 ```
 
-### Set app key
+#### Set app key
 
 ```php
-$mkz->set_app_key('yyyyyyyyyyyyyyyyyyyyyyy');
+$mkz->set_app_key('yyyyyyyyyyyyyyyyyyyy@us-1');
 ```
 
-### Set device uid (It is inserted automatically from cookies)
+#### Set device uid (It is inserted automatically from cookies)
 
 ```php
 $mkz->set_device_uid('xxxxxyyyyy');
 ```
 
-### Debug mode
+#### Debug mode
 
 ```php
 $mkz->debug(true);
 ```
 
-### Set visitor info
+#### Set visitor info
 
 ```php
 $mkz->set_visitor_info(array(
@@ -68,9 +70,17 @@ $mkz->set_visitor_info(array(
 ));
 ```
 
-## Events
+#### Set device uid to event from Markeaze cookie
 
-### Cart update
+A default value is true.
+
+```php
+$mkz->use_cookie_uid(false);
+```
+
+### Events
+
+#### Cart update
 
 ```php
 $mkz->track('cart_update', array(
@@ -87,7 +97,7 @@ $mkz->track('cart_update', array(
 ));
 ```
 
-### Cart add item
+#### Cart add item
 
 ```php
 $mkz->track('cart_add_item', array(
@@ -102,7 +112,7 @@ $mkz->track('cart_add_item', array(
 ));
 ```
 
-### Cart remove item
+#### Cart remove item
 
 ```php
 $mkz->track('cart_remove_item', array(
@@ -113,7 +123,7 @@ $mkz->track('cart_remove_item', array(
 ));
 ```
 
-### Order create
+#### Order create
 
 ```php
 $mkz->track('order_create', array(
@@ -139,7 +149,7 @@ $mkz->track('order_create', array(
 ));
 ```
 
-### Order update
+#### Order update
 
 ```php
 $mkz->track('cart_update', array(
@@ -165,7 +175,7 @@ $mkz->track('cart_update', array(
 ));
 ```
 
-### Order create
+#### Order cancel
 
 ```php
 $mkz->track('order_cancel', array(
@@ -173,7 +183,7 @@ $mkz->track('order_cancel', array(
 ));
 ```
 
-### Update visitor info
+#### Update visitor info
 
 ```php
 $mkz->track('visitor_update', array(
@@ -182,3 +192,126 @@ $mkz->track('visitor_update', array(
   'last_name' => 'Qiu'
 ));
 ```
+
+## Webhook api
+
+### Example code for the site
+
+```php
+include_once('mkz_webhook.php');
+$app_key = 'xxxxxxxxxxxxxxxxxxxx@us-1';
+$app_secret = 'yyyyyyyyyyyyyyyyyyyy';
+$cms = 'wordpress';
+$mkz_webhook = new MkzWebhook($app_key, $app_secret, $cms);
+$customer = array(
+  'client_id' => '123',
+  'first_name' => 'Kong',
+  'last_name' => 'Qiu'
+);
+$payload = array(
+  'order_uid' => '123',
+  'external_id' => '456',
+  'updated_at' => time(),
+  'total' => 100.0,
+  'items' => array(
+    {
+      'variant_id' => '123',
+      'qnt' => 2.0,
+      'price' => 100,
+      'name' => 'Test product',
+      'main_image_url' => 'http://example.net/product.jpg',
+      'url' => 'http://example.net/product'
+    }
+  ),
+  'trigger_value' => 'some-trigger',
+  'tracking_number' => '123',
+  'fulfillment_status' => 'Delivered',
+  'financial_status' => 'Paid',
+  'payment_method' => 'Card',
+  'shipping_method' => 'Mail',
+  'customer' => $customer
+);
+$mkz_webhook->send('order/update', $payload);
+```
+
+### Topics & payloads
+
+#### Customer attribute
+
+```php
+$customer = array(
+  'client_id' => '123',
+  'email' => 'mail@example.net',
+  'first_name' => 'Kong',
+  'last_name' => 'Qiu'
+);
+```
+
+#### order/create
+
+```php
+$payload = array(
+  'order_uid' => '123',
+  'external_id' => '456',
+  'updated_at' => time(),
+  'total' => 100.0,
+  'items' => array(
+    {
+      'variant_id' => '123',
+      'qnt' => 2.0,
+      'price' => 100,
+      'name' => 'Test product',
+      'main_image_url' => 'http://example.net/product.jpg',
+      'url' => 'http://example.net/product'
+    }
+  ),
+  'trigger_value' => 'some-trigger',
+  'tracking_number' => '123',
+  'fulfillment_status' => 'Delivered',
+  'financial_status' => 'Paid',
+  'payment_method' => 'Card',
+  'shipping_method' => 'Mail',
+  'customer' => $customer
+);
+$mkz_webhook->send('order/create', $payload);
+```
+
+#### order/update
+
+```php
+$payload = array(
+  'order_uid' => '123',
+  'external_id' => '456',
+  'updated_at' => time(),
+  'total' => 100.0,
+  'items' => array(
+    {
+      'variant_id' => '123',
+      'qnt' => 2.0,
+      'price' => 100,
+      'name' => 'Test product',
+      'main_image_url' => 'http://example.net/product.jpg',
+      'url' => 'http://example.net/product'
+    }
+  ),
+  'trigger_value' => 'some-trigger',
+  'tracking_number' => '123',
+  'fulfillment_status' => 'Delivered',
+  'financial_status' => 'Paid',
+  'payment_method' => 'Card',
+  'shipping_method' => 'Mail',
+  'customer' => $customer
+);
+$mkz_webhook->send('order/update', $payload);
+```
+
+Mandatory:
+
+- order_uid
+- external_id
+- updated_at
+- total
+- items[]['variant_id']
+- items[]['qnt']
+- items[]['price']
+- customer

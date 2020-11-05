@@ -9,7 +9,7 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 		$modelEvent = $this->model_setting_event;
 
 		$this->load->model('setting/module');
-		$this->model_setting_module->addModule('markeaze', array('name'=>'Markeaze'));
+		$this->model_setting_module->addModule('markeaze', array('name' => 'Markeaze'));
 
 		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/addOrder/after' , 'extension/module/markeaze/order_add');
 		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/editOrder/after' , 'extension/module/markeaze/order_update');
@@ -74,6 +74,12 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 			$data['markeaze_app_key'] = $this->request->post['markeaze_app_key'];
 		} else {
 			$data['markeaze_app_key'] = $this->config->get('markeaze_app_key');
+		}
+
+		if (isset($this->request->post['markeaze_secret_key'])) {
+			$data['markeaze_secret_key'] = $this->request->post['markeaze_secret_key'];
+		} else {
+			$data['markeaze_secret_key'] = $this->config->get('markeaze_secret_key');
 		}
 
 		$data['header'] = $this->load->controller('common/header');

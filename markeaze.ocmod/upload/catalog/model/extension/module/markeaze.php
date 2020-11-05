@@ -50,7 +50,7 @@ class ModelExtensionModuleMarkeaze extends Model {
   }
 
   public function orderState($order_id) {
-    if (!($mkz = $this->getTracker())) return;
+    if (!($mkz_webhook = $this->getWebhook())) return;
 
     $this->load->model('checkout/order');
     $this->load->model('account/order');
@@ -59,18 +59,15 @@ class ModelExtensionModuleMarkeaze extends Model {
     $order = $this->model_checkout_order->getOrder($order_id);
     $products = $this->model_account_order->getOrderProducts($order_id);
     $data = $this->getOrderData($order, $products);
-    $visitor = $this->getCustomerInfo($order);
+    $data['customer'] = $this->getCustomerInfo($order);
 
     // Fix multiple order updates
-    $payload = array($visitor, $data);
     if (isset($this->session->data['cnv_last_order_update'])) {
-      if ($this->session->data['cnv_last_order_update'] === $payload) return;
+      if ($this->session->data['cnv_last_order_update'] === $data) return;
     }
-    $this->session->data['cnv_last_order_update'] = $payload;
+    $this->session->data['cnv_last_order_update'] = $data;
 
-    $mkz->use_cookie_uid(false);
-    $mkz->set_visitor_info($visitor);
-    $mkz->track('order_update', $data);
+    $mkz_webhook->send('order/update', $data);
   }
 
   public function orderAdd($order_id) {
@@ -94,27 +91,32 @@ class ModelExtensionModuleMarkeaze extends Model {
       $products = $this->model_account_order->getOrderProducts($order_id);
     }
 
-    $mkz->set_visitor_info($this->getCustomerInfo($order));
+    $visitor = $this->getCustomerInfo($order);
 
     if ($order['order_status_id'] == 0 or $order['order_status_id'] == $this->config->get('config_order_status_id')) {
       if (isset($this->session->data['cnv_last_order_id']) and $this->session->data['cnv_last_order_id'] == $order_id) return false;
       else $this->session->data['cnv_last_order_id'] = $order_id;
+      $mkz->set_visitor_info($visitor);
       $mkz->track('order_create', $this->getOrderData($order, $products));
     } else if ($order['order_status_id'] > 0) {
-      $mkz->use_cookie_uid(false);
       if ($order['order_status_id'] === 'cancelled') {
         $this->orderDelete($order_id);
       } else {
-        $mkz->track('order_update', $this->getOrderData($order, $products));
+        if (!($mkz_webhook = $this->getWebhook())) return;
+
+        $data = $this->getOrderData($order, $products);
+        $data['customer'] = $visitor;
+        $mkz_webhook->send('order/update', $data);
       }
     }
   }
 
   public function orderDelete($order_id) {
-    if (!($mkz = $this->getTracker())) return;
+    if (!($mkz_webhook = $this->getWebhook())) return;
 
-    $mkz->track('order_cancel', array(
-      'order_uid' => $order_id
+    $mkz_webhook->send('order/update', array(
+      'order_uid' => $order_id,
+      'fulfillment_status' => 'Cancelled'
     ));
   }
 
@@ -162,6 +164,12 @@ class ModelExtensionModuleMarkeaze extends Model {
     if ($app_key) return $app_key;
   }
 
+  public function getSecretKey() {
+    $this->load->model('setting/setting');
+    $secret_key = $this->config->get('markeaze_secret_key');
+    if ($secret_key) return $secret_key;
+  }
+
   private function getTracker() {
     $this->load->model('account/customer');
     $app_key = $this->getAppKey();
@@ -170,6 +178,17 @@ class ModelExtensionModuleMarkeaze extends Model {
     include_once('markeaze-php-tracker/mkz.php');
     $mkz = new Mkz($app_key);
     return $mkz;
+  }
+
+  private function getWebhook() {
+    $this->load->model('account/customer');
+    $app_key = $this->getAppKey();
+    $secret_key = $this->getSecretKey();
+    if (!$app_key || !$secret_key) return false;
+
+    include_once('markeaze-php-tracker/mkz_webhook.php');
+    $mkz_webhook = new MkzWebhook($app_key, $secret_key, 'opencart_v3');
+    return $mkz_webhook;
   }
 
   protected function getImageUrl($path) {

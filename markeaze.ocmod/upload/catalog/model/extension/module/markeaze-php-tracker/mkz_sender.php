@@ -12,15 +12,16 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 */
 
 class MkzSender {
-
   public function __construct($url) {
     $this->url = (string) $url;
   }
 
-  public function send($data) {
+  public function send($data, $method = 'POST', $headers = []) {
     $class_name = function_exists('curl_version') ? 'MkzCurlSender' : 'MkzNativeSender';
+    array_push($headers, 'Content-Type: application/x-www-form-urlencoded; charset=utf-8');
+    array_push($headers, 'Accept: application/json, text/javascript, */*; q=0.01');
     $sender = new $class_name($this->url);
-    return $sender->send($data);
+    return $sender->send($data, strtoupper($method), $headers);
   }
 
 }
@@ -31,12 +32,12 @@ class MkzNativeSender {
     $this->url = (string) $url;
   }
 
-  public function send($data) {
+  public function send($data, $method = 'POST', $headers = []) {
     $post = http_build_query($data);
     $opts = stream_context_create(array(
       'http' => array(
-        'method' => 'POST',
-        'header' => 'Content-Type: application/x-www-form-urlencoded; charset=utf-8',
+        'method' => $method,
+        'header' => implode("\r\n", $headers),
         'content' => $post
       )
     ));
@@ -51,16 +52,9 @@ class MkzCurlSender {
     $this->url = (string) $url;
   }
 
-  public function send($data) {
-    $method = 'POST';
+  public function send($data, $method = 'POST', $headers = []) {
     $timeout = 1;
     $connect_timeout = 1;
-
-    $headers = array(
-      'Accept: application/json, text/javascript, */*; q=0.01',
-      'Content-Type: application/x-www-form-urlencoded; charset=utf-8'
-    );
-
     $curl = curl_init($this->url);
 
     curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
