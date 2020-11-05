@@ -21,36 +21,27 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 		return $this->load->view('extension/module/markeaze', $data);
 	}
 
-	public function head (&$route, &$args, &$output) {
+	public function head(&$route, &$args, &$output) {
 		$args['analytics'][] = $this->index();
 	}
 
 	public function order_add($route, $data, $order_id) {
-		if ((integer) $order_id > 0) {
-			$this->load->model('extension/module/markeaze');
-			$this->model_extension_module_markeaze->orderAdd($order_id);
-		}
+		$this->load->model('extension/module/markeaze');
+		$this->model_extension_module_markeaze->orderAdd($order_id);
 	}
 
 	public function order_update($route, $data) {
-		if (!empty($data[0])) {
+		if ($route == 'checkout/order/addOrderHistory' && !empty($data[0])) {
 			$order_id = $data[0];
 			$this->load->model('extension/module/markeaze');
 			$this->model_extension_module_markeaze->orderState($order_id);
 		}
 	}
 
-	public function order_history_add($order_id) {
-		if ((integer) $order_id > 0) {
+	public function order_delete($route, $data) {
+		if (!empty($data[0])) {
 			$this->load->model('extension/module/markeaze');
-			$this->model_extension_module_markeaze->orderAdd($order_id);
-		}
-	}
-
-	public function order_delete($order_id) {
-		if ((integer) $order_id > 0) {
-			$this->load->model('extension/module/markeaze');
-			$this->model_extension_module_markeaze->orderDelete($order_id);
+			$this->model_extension_module_markeaze->orderDelete($data[0]);
 		}
 	}
 

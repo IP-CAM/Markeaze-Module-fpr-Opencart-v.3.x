@@ -12,7 +12,7 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 */
 
 class MkzWebhook {
-  public $debug = true;
+  public $debug = false;
   private $endpoint = null;
   private $app_key = null;
   private $app_secret = null;

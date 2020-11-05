@@ -99,15 +99,11 @@ class ModelExtensionModuleMarkeaze extends Model {
       $mkz->set_visitor_info($visitor);
       $mkz->track('order_create', $this->getOrderData($order, $products));
     } else if ($order['order_status_id'] > 0) {
-      if ($order['order_status_id'] === 'cancelled') {
-        $this->orderDelete($order_id);
-      } else {
-        if (!($mkz_webhook = $this->getWebhook())) return;
+      if (!($mkz_webhook = $this->getWebhook())) return;
 
-        $data = $this->getOrderData($order, $products);
-        $data['customer'] = $visitor;
-        $mkz_webhook->send('order/update', $data);
-      }
+      $data = $this->getOrderData($order, $products);
+      $data['customer'] = $visitor;
+      $mkz_webhook->send('order/update', $data);
     }
   }
 

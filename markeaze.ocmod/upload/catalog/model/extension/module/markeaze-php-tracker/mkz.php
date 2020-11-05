@@ -13,7 +13,7 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 
 class Mkz {
   public $version = '1.1.0';
-  public $debug = true;
+  public $debug = false;
   public $post_data = null;
   private $tracker_name = 'markeaze-php';
   private $endpoint = null;

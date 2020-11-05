@@ -11,23 +11,17 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 		$this->load->model('setting/module');
 		$this->model_setting_module->addModule('markeaze', array('name' => 'Markeaze'));
 
-		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/addOrder/after' , 'extension/module/markeaze/order_add');
-		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/editOrder/after' , 'extension/module/markeaze/order_update');
-		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/addOrderHistory/after' , 'extension/module/markeaze/order_update');
-		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/deleteOrder/before' , 'extension/module/markeaze/order_delete');
-
-	 	$code = 'markeaze_header';
-		$trigger = 'catalog/view/common/header/before';
-		$action = 'extension/module/markeaze/head';
-	 	$this->model_setting_event->addEvent($code, $trigger, $action);
+		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/addOrder/after', 'extension/module/markeaze/order_add');
+		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/editOrder/after', 'extension/module/markeaze/order_update');
+		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/addOrderHistory/after', 'extension/module/markeaze/order_update');
+		$modelEvent->addEvent('markeaze', 'catalog/model/checkout/order/deleteOrder/after', 'extension/module/markeaze/order_delete');
+	 	$modelEvent->addEvent('markeaze', 'catalog/view/common/header/before', 'extension/module/markeaze/head');
 	}
 
 	public function uninstall() {
 		$this->load->model('setting/event');
 		$modelEvent = $this->model_setting_event;
-		$modelEvent->deleteEvent('markeaze');
-
-		$this->model_setting_event->deleteEventByCode('markeaze_header');
+		$modelEvent->deleteEventByCode('markeaze');
 	}
 
 	public function index() {
