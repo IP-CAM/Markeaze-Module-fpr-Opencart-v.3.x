@@ -27,7 +27,8 @@ class MkzWebhook {
 
   public function send($topic, $payload) {
     include_once('mkz_sender.php');
-    $sender = new MkzSender("https://{$this->endpoint}/i/cms/{$this->cms}/webhook");
+    $url = "https://{$this->endpoint}/i/cms/{$this->cms}/webhook";
+    $sender = new MkzSender($url);
     $data = array(
       'app_key' => (string) $this->app_key,
       'topic' => (string) $topic,
@@ -36,14 +37,14 @@ class MkzWebhook {
     $json = json_encode($data);
     $signature = $this->get_webhook_signature($json);
     $headers = array(
-      "HTTP_X_MARKEAZE_WEBHOOK_SIGNATURE: {$signature}",
+      "x-markeaze-webhook-signature: {$signature}",
       'Content-Type: application/json'
     );
     $response = $sender->send($json, 'POST', $headers);
 
     include_once('mkz_logger.php');
     $logger = new MkzLogger($this->debug);
-    $logger->put(array('headers' => $headers, 'body' => $data), $response);
+    $logger->put(array('headers' => $headers, 'body' => $data), $response, $url);
   }
 
   private function get_webhook_signature($data) {

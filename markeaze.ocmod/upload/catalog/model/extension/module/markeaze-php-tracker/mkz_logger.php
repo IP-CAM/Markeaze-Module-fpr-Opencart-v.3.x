@@ -18,17 +18,18 @@ class MkzLogger {
     $this->debug = $debug;
   }
 
-  public function put($request, $response) {
+  public function put($request, $response, $url) {
     if (!$this->debug) return;
 
     ob_start();
-    echo 'REQUEST: ';
+    echo "REQUEST:\n";
+    echo "{$url}\n";
     print_r($request);
-    echo 'RESPONSE: ';
+    echo "RESPONSE:\n";
     print_r($response);
     $str_post = ob_get_clean();
     $date = date('Y.m.d H:i:s');
-    $row = "{$date}\n{$str_post}\n";
+    $row = "{$date}\n{$str_post}\n\n";
     $filename = dirname(__FILE__) . '/debug.log';
     file_put_contents($filename, $row, FILE_APPEND);
   }

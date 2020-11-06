@@ -31,7 +31,7 @@ class ControllerExtensionModuleMarkeaze extends Controller {
 	}
 
 	public function order_update($route, $data) {
-		if ($route == 'checkout/order/addOrderHistory' && !empty($data[0])) {
+		if (!empty($data[0])) {
 			$order_id = $data[0];
 			$this->load->model('extension/module/markeaze');
 			$this->model_extension_module_markeaze->orderState($order_id);

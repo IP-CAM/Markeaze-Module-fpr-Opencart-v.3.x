@@ -14,7 +14,6 @@ Documentation: https://github.com/markeaze/markeaze-php-tracker/blob/master/READ
 class Mkz {
   public $version = '1.1.0';
   public $debug = false;
-  public $post_data = null;
   private $tracker_name = 'markeaze-php';
   private $endpoint = null;
   private $app_key;
@@ -84,16 +83,16 @@ class Mkz {
 
     if (count($properties) > 0) $data['properties'] = $properties;
 
-    $this->post_data = $data;
+    $url = "https://{$this->endpoint}/event";
 
     include_once('mkz_sender.php');
-    $sender = new MkzSender("https://{$this->endpoint}/event");
+    $sender = new MkzSender($url);
     $headers = array('Content-Type: application/x-www-form-urlencoded; charset=utf-8');
     $response = $sender->send(http_build_query(array('data' => json_encode($data))), 'POST', $headers);
 
     include_once('mkz_logger.php');
     $logger = new MkzLogger($this->debug);
-    $logger->put(array('headers' => $headers, 'body' => $data), $response);
+    $logger->put(array('headers' => $headers, 'body' => $data), $response, $url);
 
     return $response;
   }

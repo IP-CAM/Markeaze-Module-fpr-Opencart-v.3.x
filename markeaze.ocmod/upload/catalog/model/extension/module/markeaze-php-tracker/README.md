@@ -209,6 +209,7 @@ $customer = array(
   'last_name' => 'Qiu'
 );
 $payload = array(
+  'updated_at' => '1234567890',
   'order_uid' => '123',
   'external_id' => '456',
   'updated_at' => time(),
@@ -251,6 +252,7 @@ $customer = array(
 
 ```php
 $payload = array(
+  'created_at' => '1234567890',
   'order_uid' => '123',
   'external_id' => '456',
   'updated_at' => time(),
@@ -280,6 +282,7 @@ $mkz_webhook->send('order/create', $payload);
 
 ```php
 $payload = array(
+  'updated_at' => '1234567890',
   'order_uid' => '123',
   'external_id' => '456',
   'updated_at' => time(),

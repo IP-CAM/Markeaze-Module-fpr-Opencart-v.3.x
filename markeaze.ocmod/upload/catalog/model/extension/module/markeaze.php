@@ -67,6 +67,7 @@ class ModelExtensionModuleMarkeaze extends Model {
     }
     $this->session->data['cnv_last_order_update'] = $data;
 
+    $data['updated_at'] = time();
     $mkz_webhook->send('order/update', $data);
   }
 
@@ -91,19 +92,21 @@ class ModelExtensionModuleMarkeaze extends Model {
       $products = $this->model_account_order->getOrderProducts($order_id);
     }
 
+    if (isset($this->session->data['cnv_last_order_id']) and $this->session->data['cnv_last_order_id'] == $order_id) return false;
+    else $this->session->data['cnv_last_order_id'] = $order_id;
+
     $visitor = $this->getCustomerInfo($order);
+    $is_admin = $this->request->get['route'] == 'api/order/add';
+    $data = $this->getOrderData($order, $products);
 
-    if ($order['order_status_id'] == 0 or $order['order_status_id'] == $this->config->get('config_order_status_id')) {
-      if (isset($this->session->data['cnv_last_order_id']) and $this->session->data['cnv_last_order_id'] == $order_id) return false;
-      else $this->session->data['cnv_last_order_id'] = $order_id;
-      $mkz->set_visitor_info($visitor);
-      $mkz->track('order_create', $this->getOrderData($order, $products));
-    } else if ($order['order_status_id'] > 0) {
+    if ($is_admin) {
       if (!($mkz_webhook = $this->getWebhook())) return;
-
-      $data = $this->getOrderData($order, $products);
       $data['customer'] = $visitor;
-      $mkz_webhook->send('order/update', $data);
+      $data['created_at'] = time();
+      $mkz_webhook->send('order/create', $data);
+    } else {
+      $mkz->set_visitor_info($visitor);
+      $mkz->track('order_create', $data);
     }
   }
 
@@ -112,7 +115,8 @@ class ModelExtensionModuleMarkeaze extends Model {
 
     $mkz_webhook->send('order/update', array(
       'order_uid' => $order_id,
-      'fulfillment_status' => 'Cancelled'
+      'fulfillment_status' => 'Cancelled',
+      'updated_at' => time()
     ));
   }
 
